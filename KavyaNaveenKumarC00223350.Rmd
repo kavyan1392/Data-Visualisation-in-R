@@ -1,0 +1,220 @@
+---
+title: "Exploratory Data Analysis"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Load packages:
+
+```{r, results='hide'}
+library(dplyr)
+library(ggplot2)
+
+```
+
+###Load data
+
+```{r, load data, results="hide"}
+work<-read.csv("NIOSH_QWL (4).csv")
+work
+#getwd()
+#setwd("C:/Users/kavya/Desktop")
+```
+**
+##PART1: Research Questions:
+
+
+*Research Question 1:*
+Is there any impact on health of the respondents due to stress at work?
+ 
+*Research Question 2:*
+
+What is the impact on the financial satisfaction of the respondents depending on the number of children owned by them?
+
+*Research Question 3:*
+
+Americans are more satisfied from job when they are self-employed or working under someone else?
+
+
+#PART 2: EDA
+
+
+*Research Question 1:*
+
+Is there any impact on health of the respondents due to stress at work?
+
+In this analysis, I am intrested to know how the busy schedule,pressure and stress at work affects the health of citizens of US. In this compitative world people often neglect the health in the race of achieving success in life.My prediction for this analysis is, more stress at work will lead to poor health conditions.
+
+Variables taken are:
+
+1.Stressr- Categorical variable which describes the stress level of the respondants at work.
+
+2.health- Categorical variable which discribes the health of the respondents.
+
+3.sex- Categorical variable describing the gender of the respondents.
+
+Here,I am removing N/A from all the 3 columns:
+
+```{r}
+stress<-work%>%
+  
+filter(!is.na(stressr) & !is.na(health) & !is.na(sex))
+
+```
+Numerical summaries of the data chosen for this analysis:
+```{r}
+table(stress$stressr,stress$health,stress$sex)
+```
+Proportion of the data used in the analysis:
+```{r}
+prop.table(table(stress$stressr,stress$health,stress$sex))
+```
+From the below mosaic graph, we can analyse the proportions of the variables better.
+```{r}
+stress %>%
+  mutate(health = as.character(health)) -> stress
+  
+
+plot(table(stress$health,stress$stressr))
+```
+Interpretation:
+By looking at the poor health status column, we can see that "Always" stress level(Always stress at work) is highest when compared to people having excellent and good health.We can also see that proportion of "hardly ever" stress level is also least for people having poor health conditions.From this we can predict that people having poor health condition will mostly have stress at work.
+
+
+Using another graph to see if men face more stress at work or women.
+```{r}
+ggplot(stress,aes(x=health,fill=stressr))+facet_wrap(~sex)+geom_bar()+labs(x="Health conditions", y="Respondants")+ggtitle("Stress level v/s health conditions in male and female")
+
+
+``````
+
+Interpretation:
+From the above graph we can see that graph for female and male are almost same. Female and male face the same amount of stress at work.
+
+
+
+
+*Research Question 2:*
+What is the impact on the financial satisfaction of the respondents depending on the number of children owned by them?
+
+In this analysis, I am intrested in knowing what is the financial satisfaction level of the respondents depending on the size of family.My prediction is that when the family size increases then the financial satisfaction decreses.
+
+Variables used are:
+
+1.satfin - how satisfied are respondents with their financial situation.
+
+2.childs - total number of children owned by the respondent.
+
+3.race - race of the respondent.
+
+
+Numerical summaries of the analysis:
+```{r}
+table(work$childs,work$satfin,work$race)
+
+```
+
+Proportions of the variables used in the analysis:
+
+```{r}
+prop.table(table(work$childs,work$satfin,work$race))
+
+```
+Here, I am removing all the enties with NA values for childs and satfin variable and also I am intrested in only "satisfied " and "not at all satisfied" categories so removing "more or less" category in satfin variable.
+
+```{r}
+child<-work%>%
+  
+filter(!is.na(childs) & !is.na(satfin) & satfin!="MORE OR LESS" )
+
+```
+Below masaic graph best helps in understanding relationship between satfin and childs variables.
+```{r}
+child %>%
+  mutate(childs = as.character(childs)) -> child
+
+plot(table(child$childs,child$satfin))
+
+```
+Interpretation:
+1.Initially, the proportions of satisfied and not at all satisfied categories are quite equal for the respondents having 5 children.
+2.But when the number of children increases(8 or more) then the proportion of "not at all satisfied"" is more than "satisfied" category. From this we can predict that respondents are not financially satisfied when they have more number of kids.
+
+
+In this below graph we can analyse how satisfaction with the financial situations depending on the number of kids owned by the kid differ between different race.
+```{r}
+ggplot(data=child,aes(childs,fill=satfin))+facet_wrap(~race)+geom_bar()+theme(axis.text.x = element_text(angle=60,hjust = 1))+labs(x="No. of children owned by respodents", y="Respondants")+ggtitle("Financial satisfaction levels depending on no. of children among different race")
+
+```
+Interpretation:
+1.From the first block we can interpret that, among black race, respondents are mostly not satisfied at all no matter how many children they own.
+2.While when we look at the third block, most americans are satisfied if they have upto 4 kids and above 5 kids the proportions are almost equal between satisfied and not at all satisfied categories.
+
+
+
+*Research Question 3:*
+Americans are more satisfied from job when they are self-employed or working under someone?
+
+It is often better to be the boss rather than working under someone for the sake of job satisfaction. So, in this analysis I am intrested in knowing wheather americans are more satisfied with job when they are self-employed or when they are working under someone else.
+
+Variables used are:
+
+1.wrkslf : Categorical variable represents if the respondent is a self-employed or working for someone else.
+
+2.satjob : Categorical variable representing how satisfied are the respondents with their job.
+
+3.wrkstat : categorical variable represents whether the respondent is working part-time or full-time. 
+
+
+
+Below table gives the numerical summaries of the variables chosen:
+```{r}
+table(work$wrkslf,work$satjob,work$wrkstat)
+
+```
+Below table shows the proportions of the variables chosen:
+```{r}
+prop.table(table(work$wrkslf,work$satjob,work$wrkstat))
+
+```
+
+Here, I am removing the N/A data from the wrkslf and satjob variables and also removing the "MOD.SATISFIED" category in satjob variable and "TEMP NOT WORKING" category from wrkstat variable because we are only intrested in satisfied and not satisfied categories.
+
+
+```{r}
+jobsatis<-work%>%
+  
+filter(!is.na(wrkslf) & !is.na(satjob) & !is.na(wrkstat) & satjob!="MOD. SATISFIED" & wrkstat!="TEMP NOT WORKING"  )
+
+```
+
+
+Below mosaic plot represents the proportions of the categories in the variables satjob and wrkslf.
+
+```{r}
+jobsatis%>%
+  mutate(satjob = as.character(satjob)) -> jobsatis
+  
+
+plot(table(jobsatis$wrkslf,jobsatis$satjob))
+```
+
+Interpretation:
+1. From the above graph we can see that people who are self-employed, the ratio of satisfaction is more than dissatisfaction("very dissatisfied" and "a little dissatisfied"). 
+2.When we compare the dissatisfaction level among the people who are self-employed and working for someone else, then the people who are working for someone are more dissatisfied.
+
+
+From the below bar graph i am intrested in knowing the how satisfied are people with their jobs when they are either self-employed or working for someone else while doing parttime or fulltime job(Work status).
+```{r}
+ggplot(jobsatis, aes(x=wrkslf,fill=satjob))+facet_wrap(~wrkstat) +geom_bar()+labs(x="workself", y="Respondants")+ggtitle("Job satisfaction levels depending on workself among different work status")
+
+
+``````
+
+Intrepretation:
+
+1. From the above graph we can intrepret that people are more satisfied when they are self-employed first of all.
+2. Second thing to notice is that people who are self-employed and doing doing part-time job are more satisfied.
